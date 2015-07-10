@@ -1,14 +1,47 @@
 from selenium import webdriver
 from xvfbwrapper import Xvfb    # added for headless selenium operation
+import unittest
 
-# added for headless selenium operation
-vdisplay = Xvfb()
-vdisplay.start()
+class NewVisitorTest(unittest.TestCase):
+    def setUp(self):
+        self.xvfb = Xvfb()
+        self.xvfb.start()
+        self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(3)
 
-browser = webdriver.Firefox()
-browser.get('http://localhost:8000')
-assert 'Django' in browser.title
-browser.quit()
+    def tearDown(self):
+        self.browser.quit()
+        self.xvfb.stop()
 
-# added for headless selenium operation
-vdisplay.stop()
+    def test_can_start_a_list_and_retrieve_it_later(self):
+        # Edith has heard about a cool new online to-do app.  She goes
+        # to check out its homepage
+        self.browser.get('http://localhost:8000')
+
+        # She notices the page title and header mention to-do lists
+        self.assertIn('To-Do', self.browser.title)
+        self.fail('Finish the test!')
+
+        # She is invited to enter a to-do item straight away
+
+        # She types "Buy peacock feathers" into a text box (Edith's hobby
+        # is tying fly-fishing lures)
+
+        # When she hits enter, the page updates, and now the page lists
+        # "1: Buy peacock feathers" as an item in a to-do lists
+
+        # There is still a text box inviting her to add another item.  She
+        # enters "Use peacock feathers to make a fly" (Edith is very methodical)
+
+        # The page updates again, and now show both items on her lists
+
+        # Edith wonders whether the site will remember her list.  Then she sees
+        # that the site has generated a unique URL for her -- there is some
+        # explanatory text to that effect.
+
+        # She visits that URL - her to-do list is still there.
+
+        # Satisfied, she goes back to sleep
+
+if __name__ == '__main__':
+    unittest.main(warnings='ignore')
