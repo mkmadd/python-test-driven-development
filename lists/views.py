@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.core.exceptions import ValidationError
-from django.views.generic import FormView
 
 from lists.forms import ExistingListItemForm, ItemForm
 from lists.models import Item, List
@@ -28,7 +27,3 @@ def new_list(request):
         return redirect(list_)
     else:
         return render(request, 'home.html', {"form": form})
-
-class HomePageView(FormView):
-    template_name = 'home.html'
-    form_class = ItemForm
