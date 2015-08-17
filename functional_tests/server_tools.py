@@ -10,8 +10,8 @@ def create_session_on_server(host, email):
     return subprocess.check_output(
         [
             'fab',
-            '-i {}'.format(KEY),    # add key for ssh authentication
-            '--port {}'.format(PORT),   # add non-22 port
+            '-i{}'.format(KEY),    # add key for ssh authentication
+            '--port={}'.format(PORT),   # add non-22 port
             'create_session_on_server:email={}'.format(email),
             '--host={}'.format(host),
             '--hide=everything,status',
@@ -23,8 +23,8 @@ def reset_database(host):
     subprocess.check_call(
         [
             'fab',
-            '-i {}'.format(KEY),    # add key for ssh authentication
-            '--port {}'.format(PORT),   # add non-22 port
+            '-i{}'.format(KEY),    # add key for ssh authentication
+            '--port={}'.format(PORT),   # add non-22 port
             'reset_database',
             '--host={}'.format(host),
         ],
