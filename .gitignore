@@ -4,3 +4,4 @@ __pycache__
 nppBackup/
 qunit.*
 *.pem
+functional_tests/screendumps
