@@ -6,11 +6,12 @@ from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
 User = get_user_model()
 
 from lists.forms import (
     DUPLICATE_ITEM_ERROR, EMPTY_ITEM_ERROR,
-    ExistingListItemForm, ItemForm
+    ExistingListItemForm, ItemForm, ShareForm
 )
 from lists.views import new_list
 from lists.models import Item, List
@@ -122,6 +123,20 @@ class ListViewTest(TestCase):
         self.assertTemplateUsed(response, 'list.html')
         self.assertEqual(Item.objects.all().count(), 1)
 
+    # MKM
+    def test_displays_share_form(self):
+        list_ = List.objects.create()
+        response = self.client.get('/lists/{}/'.format(list_.id))
+        self.assertIsInstance(response.context['share_form'], ShareForm)
+        self.assertContains(response, 'name="email"')
+
+    def test_displays_users_shared_with(self):
+        list_ = List.objects.create()
+        user = User.objects.create(email='a@b.com')
+        user.shared_lists.add(list_)
+        response = self.client.get('/lists/{}/'.format(list_.id))
+        self.assertContains(response, 'a@b.com')
+
 
 class NewListViewIntegratedTest(TestCase):
 
@@ -211,3 +226,24 @@ class MyListsTest(TestCase):
         correct_user = User.objects.create(email='a@b.com')
         response = self.client.get('/lists/users/a@b.com/')
         self.assertEqual(response.context['owner'], correct_user)
+
+
+# Added by MKM
+class ShareListsTest(TestCase):
+
+    def test_post_redirects_to_lists_page(self):
+        list_ = List.objects.create()
+        response = self.client.post(
+            '/lists/{}/share/'.format(list_.id),
+            data={'email': ''}
+        )
+        self.assertRedirects(response, reverse('view_list', args=[list_.id]))
+
+    def test_post_adds_email_to_list(self):
+        list_ = List.objects.create()
+        user = User.objects.create(email='mkmadd@gmail.com')
+        self.client.post(
+            '/lists/{}/share/'.format(list_.id),
+            data={'email': user.email}
+        )
+        self.assertIn(user, list_.shared_with.all())

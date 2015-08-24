@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from accounts.models import User
 
 from lists.models import Item, List
 
@@ -45,3 +46,16 @@ class ExistingListItemForm(ItemForm):
         except ValidationError as e:
             e.error_dict = {'text': [DUPLICATE_ITEM_ERROR]}
             self._update_errors(e)
+
+
+class ShareForm(forms.models.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ('email',)
+
+        widgets = {
+            'email': forms.fields.EmailInput(
+                attrs={'placeholder': 'your-friend@example.com'}
+            ),
+        }

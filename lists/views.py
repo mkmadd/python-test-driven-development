@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-from lists.forms import ExistingListItemForm, ItemForm, NewListForm
+from lists.forms import ExistingListItemForm, ItemForm, NewListForm, ShareForm
 from lists.models import Item, List
 
 
@@ -19,7 +19,11 @@ def view_list(request, list_id):
         if form.is_valid():
             form.save()
             return redirect(list_)
-    return render(request, 'list.html', {'list': list_, 'form': form})
+    return render(
+        request,
+        'list.html',
+         {'list': list_, 'form': form, 'share_form': ShareForm()}
+     )
 
 def new_list(request):
     form = NewListForm(data=request.POST)
@@ -31,3 +35,12 @@ def new_list(request):
 def my_lists(request, email):
     owner = User.objects.get(email=email)
     return render(request, 'my_lists.html', {'owner': owner})
+
+def share_list(request, list_id):
+    list_ = List.objects.get(id=list_id)
+    try:
+        user = User.objects.get(email=request.POST['email'])
+        list_.shared_with.add(user)
+    except User.DoesNotExist:
+        pass    # if no user, just redirect
+    return redirect('view_list', list_id)
